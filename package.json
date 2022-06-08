@@ -1,11 +1,11 @@
 {
-  "name": "create-or-update-project-card",
-  "version": "2.0.0",
+  "name": "remove-project-card",
+  "version": "0.0.1",
   "private": true,
-  "description": "A GitHub action to create or update a project card",
+  "description": "A GitHub action to remove a project card",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc && ncc build",
+    "build": "tsc && NODE_OPTIONS='--openssl-legacy-provider' ncc build",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
     "lint": "eslint src/**/*.ts",
@@ -13,19 +13,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/peter-evans/create-or-update-project-card.git"
+    "url": "git+https://github.com/aj-stein-nist/remove-project-card.git"
   },
   "keywords": [
     "actions",
     "project",
     "card"
   ],
-  "author": "Peter Evans",
+  "author": "Alexander Stein",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/peter-evans/create-or-update-project-card/issues"
+    "url": "https://github.com/aj-stein-nist/remove-project-card/issues"
   },
-  "homepage": "https://github.com/peter-evans/create-or-update-project-card#readme",
+  "homepage": "https://github.com/aj-stein-nist/remove-project-card/#readme",
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/github": "^5.0.0"

@@ -178,7 +178,6 @@ function run() {
                 projectLocation: core.getInput('project-location'),
                 projectNumber: Number(core.getInput('project-number')),
                 projectName: core.getInput('project-name'),
-                columnName: core.getInput('column-name'),
                 repository: core.getInput('repository'),
                 issueNumber: Number(core.getInput('issue-number'))
             };
@@ -195,34 +194,17 @@ function run() {
                 per_page: 100
             });
             core.debug(`Columns: ${(0, util_1.inspect)(columns)}`);
-            const column = columns.find(column => column.name == inputs.columnName);
-            core.debug(`Column: ${(0, util_1.inspect)(column)}`);
-            if (!column)
-                throw 'No column matching the supplied input found.';
             const content = yield getContent(octokit, inputs.repository, inputs.issueNumber);
             core.debug(`Content: ${(0, util_1.inspect)(content)}`);
             const existingCard = yield findCardInColumns(octokit, columns, content.url);
             if (existingCard) {
                 core.debug(`Existing card: ${(0, util_1.inspect)(existingCard)}`);
-                core.info(`An existing card is already associated with ${content.type} #${inputs.issueNumber}`);
+                core.info(`Removing existing card associated with ${content.type} #${inputs.issueNumber}`);
                 core.setOutput('card-id', existingCard.id);
-                if (existingCard.columnUrl != column.url) {
-                    core.info(`Moving card to column '${inputs.columnName}'`);
-                    yield octokit.rest.projects.moveCard({
-                        card_id: existingCard.id,
-                        position: 'top',
-                        column_id: column.id
-                    });
-                }
+                yield octokit.rest.projects.deleteCard({ card_id: existingCard.id });
             }
             else {
-                core.info(`Creating card associated with ${content.type} #${inputs.issueNumber}`);
-                const { data: card } = yield octokit.rest.projects.createCard({
-                    column_id: column.id,
-                    content_id: content.id,
-                    content_type: content.type
-                });
-                core.setOutput('card-id', card.id);
+                core.info(`No card associated with ${content.type} #${inputs.issueNumber}, nothing removed`);
             }
         }
         catch (error) {

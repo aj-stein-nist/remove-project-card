@@ -161,7 +161,6 @@ async function run(): Promise<void> {
       projectLocation: core.getInput('project-location'),
       projectNumber: Number(core.getInput('project-number')),
       projectName: core.getInput('project-name'),
-      columnName: core.getInput('column-name'),
       repository: core.getInput('repository'),
       issueNumber: Number(core.getInput('issue-number'))
     }
@@ -186,10 +185,6 @@ async function run(): Promise<void> {
     })
     core.debug(`Columns: ${inspect(columns)}`)
 
-    const column = columns.find(column => column.name == inputs.columnName)
-    core.debug(`Column: ${inspect(column)}`)
-    if (!column) throw 'No column matching the supplied input found.'
-
     const content = await getContent(
       octokit,
       inputs.repository,
@@ -201,28 +196,15 @@ async function run(): Promise<void> {
     if (existingCard) {
       core.debug(`Existing card: ${inspect(existingCard)}`)
       core.info(
-        `An existing card is already associated with ${content.type} #${inputs.issueNumber}`
+        `Removing existing card associated with ${content.type} #${inputs.issueNumber}`
       )
       core.setOutput('card-id', existingCard.id)
 
-      if (existingCard.columnUrl != column.url) {
-        core.info(`Moving card to column '${inputs.columnName}'`)
-        await octokit.rest.projects.moveCard({
-          card_id: existingCard.id,
-          position: 'top',
-          column_id: column.id
-        })
-      }
+      await octokit.rest.projects.deleteCard({card_id: existingCard.id})
     } else {
       core.info(
-        `Creating card associated with ${content.type} #${inputs.issueNumber}`
+        `No card associated with ${content.type} #${inputs.issueNumber}, nothing removed`
       )
-      const {data: card} = await octokit.rest.projects.createCard({
-        column_id: column.id,
-        content_id: content.id,
-        content_type: content.type
-      })
-      core.setOutput('card-id', card.id)
     }
   } catch (error: any) {
     core.debug(inspect(error))
